@@ -1,0 +1,8 @@
+# .gitignore
+.c++/
+c++/
+
+env/
+.env/
+venv/
+.venv/
