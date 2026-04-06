@@ -1,0 +1,28 @@
+{
+
+    "placeholder-channel": {
+
+        "web": {
+
+            "type": "user-content",
+            "sub-type": "Q&A",
+
+            "sub-reddits": [
+                "TooAfraidToAsk",
+                "AskReddit",
+                "NoStupidQuestions",
+                "AskWomen",
+                "AskMen"
+            ]
+        },
+
+        "text-to-speech": {
+
+            "module": "tiktok-tts",
+            "voice": "en_us_001",
+
+            "backup-module": "google-tts",
+            "backup-voice": "en-US-Standard-B"
+        }
+    }
+}
