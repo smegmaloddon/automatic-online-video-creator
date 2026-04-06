@@ -5,14 +5,12 @@
         "web": {
 
             "type": "user-content",
-            "sub-type": "Q&A",
+            "sub-type": "user-videos",
 
             "sub-reddits": [
-                "TooAfraidToAsk",
-                "AskReddit",
-                "NoStupidQuestions",
-                "AskWomen",
-                "AskMen"
+                "aww",
+                "AnimalsBeingBros",
+                "EyeBleach"
             ]
         },
 

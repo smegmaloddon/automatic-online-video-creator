@@ -7,6 +7,7 @@ SOURCE : Path = DIRECTORY /'src'
 
 ASSETS : Path = DIRECTORY /'assets'
 TEMPORARY : Path = DIRECTORY /'temp'
+DATA : Path = DIRECTORY /'data'
 
 BIN : Path = DIRECTORY /'bin'
 

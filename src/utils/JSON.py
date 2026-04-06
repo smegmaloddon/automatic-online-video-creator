@@ -3,6 +3,9 @@ import json
 from json import JSONDecodeError
 from pathlib import Path
 
+# helper functions for reading & writing .json files
+# simple & effective
+
 # functions
 def Read(
     path : Path
