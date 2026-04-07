@@ -3,7 +3,7 @@ from pathlib import Path
 
 # user imports
 from src.workflows import Shorts, Studio
-from src.utils import JSON, temporary, configuration
+from src.utils import JSON, temporary, configuration, directory
 
 # functions
 def __Temporary(
@@ -29,6 +29,11 @@ def __Temporary(
 
 def Run(
 ) -> None:
+    
+    # delete temporary childrne
+    directory.Wipe(
+        folder=configuration.TEMPORARY
+    )
     
     # init identity
     identity : str = 'placeholder-channel'
