@@ -19,3 +19,13 @@ def Wipe(
         else:
 
             file.unlink()
+
+def Replace(
+    old : Path,
+    new : Path
+) -> None:
+    
+    # move & overwrite
+    shutil.move(
+        new, old
+    )

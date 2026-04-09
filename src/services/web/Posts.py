@@ -11,7 +11,7 @@ from src.utils import temporary, configuration, terminal, JSON
 
 # constants
 PROXY_TIMEOUT : int = 6
-PROXY_LIMIT : float = 1.25
+PROXY_LIMIT : float = 0.75
 SORT_PARAMETERS : list = [
     'hot',
     'new',
@@ -26,6 +26,7 @@ TIME_PARAMETERS : list = [
     'year',
     'all'
 ]
+FETCH_DELAY : float = 0.75
 
 # functions
 def __Video(
@@ -60,7 +61,7 @@ def __Proxies(
             response = requests.get(
                 'https://httpbin.org/ip',
                 proxies=proxies,
-                timeout=5
+                timeout=PROXY_LIMIT
             )
         except:
 
@@ -123,7 +124,7 @@ def __Run(
     url : str = f'https://www.reddit.com/r/{page}/{sort}.json?t={time}&limit=100'
 
     # fetch proxies
-    proxies = __Proxies()
+    proxies = {} # __Proxies() --fuck-proxies #time.sleep() the GOAT!
 
     # on non-singular search, try after
     if afterwards != None:
@@ -134,7 +135,7 @@ def __Run(
     response : Response = requests.get(
         url=url,
         proxies=proxies,
-        timeout=10,
+        timeout=5,
         headers = {
             "User-Agent": "my-reddit-bot/0.1 by yourusername"
         }
@@ -217,6 +218,10 @@ def Fetch(
 
         # add posts to content
         for post in posts:
+
+            time.sleep(
+                FETCH_DELAY
+            )
 
             # if post not in previous, add to content
             if post['id'] not in previous:

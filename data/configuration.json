@@ -23,7 +23,9 @@
 
         "video": {
 
-            "use-effect-when-swap": true
+            "slideshow-enabled": true,
+            "slideshow-video": "static-tv-display.mp4",
+            "slideshow-sound": "woosh-sfx.mp3"
         }
     }
 }

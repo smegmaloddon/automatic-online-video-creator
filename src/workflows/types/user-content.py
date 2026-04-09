@@ -1,12 +1,13 @@
 # imports
 from pathlib import Path
 import random
+import shutil
 
 # user imports
-from src.utils import temporary, configuration, terminal
+from src.utils import temporary, configuration, terminal, directory
 
 from src.services.web import Posts
-from src.services.videos import Filter
+from src.services.videos import Filter, Merge, Slideshow
 
 # find Q&A posts & stitch comments together
 def __Question(
@@ -19,7 +20,7 @@ def __Videos(
 ) -> None:
     
     # init video requirement
-    requirement : int = 3 # TODO: make dynamic with configuration & post type (studio v. short-form)
+    requirement : int = 7 # TODO: make dynamic with configuration & post type (studio v. short-form)
     
     # find & return videos
     posts : list = Posts.Fetch(
@@ -58,11 +59,6 @@ def __Videos(
         posts=text
     )
 
-    # create folder for raw videos
-    Path.mkdir(
-        configuration.TEMPORARY /'raw-videos'
-    )
-
     videos : list = []
 
     # loop & download videos
@@ -82,21 +78,91 @@ def __Videos(
             url
         )
 
-        # dash_url returns .mpd instead of .mp4
-        # Posts.Download(
-        #     url=url,
-        #     path=configuration.TEMPORARY /'raw-videos' /f'video-{number}.mp4'
-        # )
-
-    # init path
-    path : Path = configuration.TEMPORARY /'raw-videos'
-
     # turn videos into short formats
     Filter.Shorts(
-        # videos=[
-        #     video for video in path.iterdir()
-        # ]
         videos=videos
+    )
+
+    # filter to <=8s & replace old
+    processed : Path = configuration.TEMPORARY /'processed-videos'
+    for file in processed.iterdir():
+
+        # filter & return path
+        updated : Path = Filter.Random(
+            path=file
+        )
+
+        # video did not require filter()
+        if updated is None:
+
+            continue
+        
+        # speed video up
+        multiplied : Path = Filter.Speed(
+            path=updated
+        )
+        updated.unlink()
+
+        # replace old with new
+        directory.Replace(
+            old=file,
+            new=multiplied
+        )
+
+    # check if slideshow-enabled is true
+    boolean : bool = temporary.content['video'].get(
+        'slideshow-enabled', False
+    )
+    if not boolean:
+
+        # create videos list
+        videos = [
+            video for video in processed.iterdir()
+        ]
+    else:
+
+        # create slideshow directory because ffmpeg is a bitch about single file being multiple use
+        Path.mkdir(
+            configuration.TEMPORARY /'slideshows'
+        )
+
+        # create slideshow cinematic
+        Slideshow.Create()
+
+        # init path
+        path : Path = configuration.TEMPORARY /'slideshow.mp4'
+
+        # create videos list
+        videos = [] # reset videos
+        number : int = 0
+        for video in processed.iterdir():
+
+            # add video & path
+            videos.append(
+                video
+            )
+            
+            # create new path & copy old
+            placeholder : Path = configuration.TEMPORARY /'slideshows' /f'slideshow-{number}.mp4'
+            shutil.copy(
+                path, placeholder
+            )
+
+            Filter.Normalise(
+                path=placeholder
+            )
+
+            # add placeholder path
+            videos.append(
+                placeholder
+            )
+
+            # increase number
+            number = number +1
+
+    Merge.Merge(
+        videos=videos,
+        output=configuration.TEMPORARY /'video.mp4'
     )
 
 # functions
@@ -110,6 +176,8 @@ def Run(
     # init dict
     dictionary : dict = {
 
+        # add arguments for when studio.py is involved to alternate what functions do
+        # i.e Shorts vs Long-Form
         'Q&A' : __Question,
         'user-videos' : __Videos
     }
