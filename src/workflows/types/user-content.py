@@ -6,8 +6,8 @@ import shutil
 # user imports
 from src.utils import temporary, configuration, terminal, directory
 
-from src.services.web import Posts
-from src.services.videos import Filter, Merge, Slideshow
+from src.services.web import Posts, Rank
+from src.services.videos import Filter, Merge, Slideshow, FFMPEG, Ranking
 
 # find Q&A posts & stitch comments together
 def __Question(
@@ -20,16 +20,26 @@ def __Videos(
 ) -> None:
     
     # init video requirement
-    requirement : int = 7 # TODO: make dynamic with configuration & post type (studio v. short-form)
+    requirement : int = temporary.content['video'].get(
+        'video-count', 8
+    )
     
     # find & return videos
     posts : list = Posts.Fetch(
         page=random.choice(
             seq=temporary.content['web']['sub-reddits']
         ),
-        video=True,
+        video=True
+    )
+
+    # rank posts
+    posts = Rank.Posts(
+        posts=posts,
         requirement=requirement
     )
+
+    # save post informations
+    dictionary : dict = posts
 
     # if no posts found, raise exception
     if len(posts) == 0:
@@ -83,13 +93,16 @@ def __Videos(
         videos=videos
     )
 
-    # filter to <=8s & replace old
+    # filter to <=time-s & replace old
     processed : Path = configuration.TEMPORARY /'processed-videos'
     for file in processed.iterdir():
 
         # filter & return path
         updated : Path = Filter.Random(
-            path=file
+            path=file,
+            length=temporary.content['video'].get(
+                'video-length-maximum', 16
+            )
         )
 
         # video did not require filter()
@@ -115,10 +128,24 @@ def __Videos(
     )
     if not boolean:
 
-        # create videos list
-        videos = [
-            video for video in processed.iterdir()
-        ]
+        array : list = []
+        for video in processed.iterdir():
+
+            # error check if corrupted
+            corrupted : bool = FFMPEG.Corrupted(
+                path=path
+            )
+            if corrupted:
+
+                continue
+            
+            # add
+            array.append(
+                video
+            )
+        
+        # swap variables
+        videos = array
     else:
 
         # create slideshow directory because ffmpeg is a bitch about single file being multiple use
@@ -136,6 +163,14 @@ def __Videos(
         videos = [] # reset videos
         number : int = 0
         for video in processed.iterdir():
+
+            # check if corrupted
+            corrupted : bool = FFMPEG.Corrupted(
+                path=video
+            )
+            if corrupted:
+
+                continue
 
             # add video & path
             videos.append(
@@ -164,6 +199,16 @@ def __Videos(
         videos=videos,
         output=configuration.TEMPORARY /'video.mp4'
     )
+
+    # if rank-videos == True
+    if temporary.content['video'].get(
+        'rank-videos', True
+    ) == True:
+        
+        # rank them
+        Ranking.Run(
+            videos=videos
+        )
 
 # functions
 def Run(

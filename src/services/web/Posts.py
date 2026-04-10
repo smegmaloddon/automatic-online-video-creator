@@ -27,6 +27,7 @@ TIME_PARAMETERS : list = [
     'all'
 ]
 FETCH_DELAY : float = 0.75
+IGNORE_SAVE : bool = True # for not saving ids to posts.json during debug
 
 # functions
 def __Video(
@@ -287,6 +288,11 @@ def Download(
 def Save(
     posts : list
 ) -> None:
+    
+    # check if it should save
+    if IGNORE_SAVE:
+
+        return
     
     # fetch dictionary
     dictionary : dict = JSON.Read( 

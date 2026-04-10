@@ -8,7 +8,7 @@
             "sub-type": "user-videos",
 
             "sub-reddits": [
-                "aww"
+                "FunnyAnimals"
             ]
         },
 
@@ -23,9 +23,16 @@
 
         "video": {
 
+            "video-length-maximum": 8,
+            "video-count": 6,
+
+            "font-family": "C:/Windows/Fonts/ARLRDBD.TTF",
+
             "slideshow-enabled": true,
             "slideshow-video": "static-tv-display.mp4",
-            "slideshow-sound": "woosh-sfx.mp3"
+            "slideshow-sound": "woosh-sfx.mp3",
+
+            "rank-videos": true
         }
     }
 }

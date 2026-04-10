@@ -17,7 +17,8 @@ def Process(
     
     # run ffmpeg process
     subprocess.run(
-        process
+        process,
+        check=True
         # stdout=subprocess.DEVNULL,
         # stderr=subprocess.DEVNULL,
     )
@@ -50,3 +51,40 @@ def Length(
     )
 
     return duration or 0
+
+def Corrupted(
+    path : Path
+) -> bool:
+
+    # attempt to check
+    try:
+
+        result : list = subprocess.run(
+            [
+                configuration.FFPROBE,
+                '-v', 'error',
+                '-show_entries', 'format=duration',
+                '-of', 'default=noprint_wrappers=1:nokey=1',
+                str(path)
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        # if ffprobe fails → invalid
+        if result.returncode != 0:
+
+            return True
+
+        # must return a duration
+        if not result.stdout.strip():
+
+            return True
+
+        return False
+
+    # any error == --corrupted
+    except Exception:
+
+        return True
